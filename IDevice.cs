@@ -1,23 +1,21 @@
-﻿// Interfaces/IDevice.cs - Інтерфейс для всіх пристроїв
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using DeviceSimulation.Components;
 using DeviceSimulation.EventArgs;
 
 namespace DeviceSimulation
 {
-    /// <summary>
-    /// Інтерфейс IDevice визначає загальний контракт для всіх типів пристроїв
-    /// </summary>
-    public interface IDevice
+    // Extended IDevice interface to include IObservable support
+    public interface IDevice : IObservable<DeviceStateEventArgs>
     {
-        // Шаблон Observer - визначення подій для спостереження за станом пристрою
         event EventHandler<BatteryLevelEventArgs> BatteryLowEvent;
         event EventHandler<NetworkStateEventArgs> NetworkStateChangedEvent;
         event EventHandler<DeviceStateEventArgs> DeviceStateChangedEvent;
 
-        // Загальні властивості пристрою
+        // Allow subscribing to different event types
+        IDisposable Subscribe(IObserver<BatteryLevelEventArgs> observer);
+        IDisposable Subscribe(IObserver<NetworkStateEventArgs> observer);
+
         DeviceType Type { get; }
         int BatteryLevel { get; }
         int BatteryCapacity { get; }
@@ -27,7 +25,6 @@ namespace DeviceSimulation
         Processor DeviceProcessor { get; }
         Memory DeviceMemory { get; }
 
-        // Загальні методи для роботи з пристроєм
         void SimulateProcessorLoad(LoadIntensity intensity);
         void SimulateMemoryUsage(LoadIntensity intensity);
         bool CanPerformAction(bool requireNetwork, string[] requiredSoftware, DeviceType? requiredDevice);
@@ -36,14 +33,10 @@ namespace DeviceSimulation
         void ToggleHeadphonesConnection();
         void DisplayDeviceInfo();
         double CalculateBatteryLife();
-
-        // Методи для основних функцій пристрою
         bool UseInternet();
         bool UseMessenger();
         bool PlayMusic();
         bool WatchVideo();
-
-        // Методи для шаблону Strategy
         void DisplaySpecificOptions();
         bool HandleSpecificOption(char choice);
     }

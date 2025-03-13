@@ -1,31 +1,35 @@
-﻿// Devices/BaseDevice.cs - Базовий клас для всіх пристроїв
+﻿// Add implementation for IObservable<DeviceStateEventArgs> in BaseDevice class
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using DeviceSimulation.Components;
 using DeviceSimulation.EventArgs;
 
 namespace DeviceSimulation.Devices
 {
-    /// <summary>
-    /// Базовий клас для всіх пристроїв, реалізує загальну функціональність
-    /// Використовує шаблон Template Method для загальної структури пристроїв
-    /// </summary>
     public abstract class BaseDevice : IDevice
     {
-        // Реалізація шаблону Observer - визначення подій
+        // Event definitions for Observer pattern
         public event EventHandler<BatteryLevelEventArgs>? BatteryLowEvent;
         public event EventHandler<NetworkStateEventArgs>? NetworkStateChangedEvent;
         public event EventHandler<DeviceStateEventArgs>? DeviceStateChangedEvent;
 
-        // Загальні властивості пристрою
+        // Collections of observers for different event types
+        private readonly List<IObserver<DeviceStateEventArgs>> _deviceStateObservers = new();
+        private readonly List<IObserver<NetworkStateEventArgs>> _networkStateObservers = new();
+        private readonly List<IObserver<BatteryLevelEventArgs>> _batteryLevelObservers = new();
+
+        protected abstract void DisplayPeripheralConnections();
+        protected abstract void DisplayProcessorInfo();
+        protected abstract void DisplayMemoryInfo();
+        protected abstract void DisplayInstalledSoftware();
+
+        // Existing properties
         public DeviceType Type { get; protected set; }
         public int BatteryCapacity { get; protected set; }
         public bool HasPowerSupport { get; protected set; }
         public List<string> InstalledSoftware { get; protected set; }
 
-        // Властивість з подією (шаблон Observer)
         private bool _networkConnected;
         public bool NetworkConnected
         {
@@ -35,13 +39,11 @@ namespace DeviceSimulation.Devices
                 if (_networkConnected != value)
                 {
                     _networkConnected = value;
-                    // Генеруємо подію при зміні стану мережі
                     OnNetworkStateChanged(new NetworkStateEventArgs(_networkConnected));
                 }
             }
         }
 
-        // Загальні властивості стану
         private int _batteryLevel;
         public int BatteryLevel
         {
@@ -49,7 +51,6 @@ namespace DeviceSimulation.Devices
             protected set
             {
                 _batteryLevel = value;
-                // Перевіряємо умову для генерації події низького заряду
                 if (_batteryLevel < 20)
                 {
                     OnBatteryLow(new BatteryLevelEventArgs(_batteryLevel));
@@ -61,9 +62,6 @@ namespace DeviceSimulation.Devices
         public Processor DeviceProcessor { get; protected set; }
         public Memory DeviceMemory { get; protected set; }
 
-        /// <summary>
-        /// Конструктор базового пристрою
-        /// </summary>
         protected BaseDevice(DeviceType type, int batteryCapacity, Processor processor, Memory memory)
         {
             Type = type;
@@ -76,21 +74,58 @@ namespace DeviceSimulation.Devices
             HeadphonesConnected = false;
         }
 
-        /// <summary>
-        /// Метод для підключення/відключення гарнітури
-        /// </summary>
-        public virtual void ToggleHeadphonesConnection()
+        // Implementation of IObservable<DeviceStateEventArgs> interface
+        public IDisposable Subscribe(IObserver<DeviceStateEventArgs> observer)
         {
-            HeadphonesConnected = !HeadphonesConnected;
-
-            // Генеруємо подію зміни стану пристрою
-            OnDeviceStateChanged(new DeviceStateEventArgs(
-                $"Гарнітура {(HeadphonesConnected ? "підключена" : "відключена")}"));
+            if (!_deviceStateObservers.Contains(observer))
+            {
+                _deviceStateObservers.Add(observer);
+            }
+            return new Unsubscriber<DeviceStateEventArgs>(_deviceStateObservers, observer);
         }
 
-        /// <summary>
-        /// Перевіряє, чи може пристрій виконати певну дію
-        /// </summary>
+        // Additional Subscribe methods for other event types
+        public IDisposable Subscribe(IObserver<NetworkStateEventArgs> observer)
+        {
+            if (!_networkStateObservers.Contains(observer))
+            {
+                _networkStateObservers.Add(observer);
+            }
+            return new Unsubscriber<NetworkStateEventArgs>(_networkStateObservers, observer);
+        }
+
+        public IDisposable Subscribe(IObserver<BatteryLevelEventArgs> observer)
+        {
+            if (!_batteryLevelObservers.Contains(observer))
+            {
+                _batteryLevelObservers.Add(observer);
+            }
+            return new Unsubscriber<BatteryLevelEventArgs>(_batteryLevelObservers, observer);
+        }
+
+        // Unsubscriber class for managing Observer pattern
+        private class Unsubscriber<T> : IDisposable
+        {
+            private readonly List<IObserver<T>> _observers;
+            private readonly IObserver<T> _observer;
+
+            public Unsubscriber(List<IObserver<T>> observers, IObserver<T> observer)
+            {
+                _observers = observers;
+                _observer = observer;
+            }
+
+            public void Dispose()
+            {
+                if (_observers.Contains(_observer))
+                {
+                    _observers.Remove(_observer);
+                }
+            }
+        }
+
+        public abstract void ToggleHeadphonesConnection();
+
         public virtual bool CanPerformAction(bool requireNetwork, string[] requiredSoftware, DeviceType? requiredDevice)
         {
             bool hasNetwork = !requireNetwork || NetworkConnected;
@@ -100,9 +135,6 @@ namespace DeviceSimulation.Devices
             return hasNetwork && hasSoftware && isCompatibleDevice;
         }
 
-        /// <summary>
-        /// Симулює використання батареї з різною інтенсивністю
-        /// </summary>
         public virtual void SimulateBatteryUsage(LoadIntensity intensity)
         {
             if (BatteryCapacity == 0)
@@ -111,7 +143,6 @@ namespace DeviceSimulation.Devices
                 return;
             }
 
-            // Визначаємо швидкість розряду залежно від інтенсивності
             int usageRate = intensity switch
             {
                 LoadIntensity.Low => 3,
@@ -120,22 +151,15 @@ namespace DeviceSimulation.Devices
                 _ => 5
             };
 
-            // Оновлюємо рівень заряду (властивість з генерацією події)
             BatteryLevel = Math.Max(0, BatteryLevel - usageRate);
-
             Console.WriteLine($"Рівень заряду батареї: {BatteryLevel}%");
         }
 
-        /// <summary>
-        /// Встановлює програмне забезпечення на пристрій
-        /// </summary>
         public virtual void InstallSoftware(string software)
         {
             if (!InstalledSoftware.Contains(software))
             {
                 InstalledSoftware.Add(software);
-
-                // Генеруємо подію зміни стану пристрою
                 OnDeviceStateChanged(new DeviceStateEventArgs($"Додаток '{software}' встановлено"));
             }
             else
@@ -144,9 +168,6 @@ namespace DeviceSimulation.Devices
             }
         }
 
-        /// <summary>
-        /// Симулює навантаження на процесор з різною інтенсивністю
-        /// </summary>
         public virtual void SimulateProcessorLoad(LoadIntensity intensity)
         {
             string load = intensity switch
@@ -158,9 +179,6 @@ namespace DeviceSimulation.Devices
             Console.WriteLine(load);
         }
 
-        /// <summary>
-        /// Симулює використання пам'яті з різною інтенсивністю
-        /// </summary>
         public virtual void SimulateMemoryUsage(LoadIntensity intensity)
         {
             string usage = intensity switch
@@ -172,9 +190,6 @@ namespace DeviceSimulation.Devices
             Console.WriteLine(usage);
         }
 
-        /// <summary>
-        /// Відображає інформацію про пристрій (шаблон Template Method)
-        /// </summary>
         public virtual void DisplayDeviceInfo()
         {
             Console.WriteLine("\n=== ІНФОРМАЦІЯ ПРО ПРИСТРІЙ ===");
@@ -183,29 +198,22 @@ namespace DeviceSimulation.Devices
             Console.WriteLine($"Рівень заряду: {BatteryLevel}%");
             Console.WriteLine($"Підключення до мережі: {(NetworkConnected ? "Так" : "Ні")}");
             Console.WriteLine($"Гарнітура: {(HeadphonesConnected ? "Підключена" : "Відключена")}");
-            Console.WriteLine($"Процесор: {DeviceProcessor.Model}, {DeviceProcessor.Cores} ядер, {DeviceProcessor.ClockSpeedGHz} ГГц");
-            Console.WriteLine($"Оперативна пам'ять: {DeviceMemory.Type}, {DeviceMemory.CapacityGB} ГБ");
-            Console.WriteLine("Встановлене ПЗ: " + (InstalledSoftware.Any() ? string.Join(", ", InstalledSoftware) : "Немає"));
 
-            // Цей метод буде перевизначено у підкласах для додавання специфічної інформації
+            // These methods will be implemented by derived classes
             DisplaySpecificInfo();
+            DisplayPeripheralConnections();
+            DisplayProcessorInfo();
+            DisplayMemoryInfo();
+            DisplayInstalledSoftware();
         }
 
-        /// <summary>
-        /// Метод для відображення специфічної інформації про конкретний тип пристрою
-        /// Буде перевизначений у кожному конкретному пристрої (шаблон Template Method)
-        /// </summary>
-        protected virtual void DisplaySpecificInfo() { }
+        protected abstract void DisplaySpecificInfo();
 
-        /// <summary>
-        /// Розраховує залишковий час роботи від батареї
-        /// </summary>
         public virtual double CalculateBatteryLife()
         {
             if (BatteryCapacity == 0)
                 return HasPowerSupport ? 0.5 : 0;
 
-            // Розрахунок залежить від ємності батареї
             if (BatteryCapacity >= 2000 && BatteryCapacity <= 3000)
                 return BatteryLevel / 100.0 * (16 * 0.33 + 48 * 0.67);
 
@@ -215,16 +223,11 @@ namespace DeviceSimulation.Devices
             return 0.5;
         }
 
-        /// <summary>
-        /// Використання інтернету (шаблон Template Method)
-        /// </summary>
         public virtual bool UseInternet()
         {
             if (CanPerformAction(true, new[] { "Браузер" }, null))
             {
-                // Генеруємо подію зміни стану пристрою
                 OnDeviceStateChanged(new DeviceStateEventArgs("Інтернет підключено"));
-
                 SimulateProcessorLoad(LoadIntensity.Low);
                 SimulateBatteryUsage(LoadIntensity.Low);
                 return true;
@@ -233,16 +236,11 @@ namespace DeviceSimulation.Devices
             return false;
         }
 
-        /// <summary>
-        /// Використання месенджера (шаблон Template Method)
-        /// </summary>
         public virtual bool UseMessenger()
         {
             if (CanPerformAction(false, new[] { "Месенджер" }, null))
             {
-                // Генеруємо подію зміни стану пристрою
                 OnDeviceStateChanged(new DeviceStateEventArgs("Спілкування доступне"));
-
                 SimulateBatteryUsage(LoadIntensity.Low);
                 return true;
             }
@@ -250,16 +248,11 @@ namespace DeviceSimulation.Devices
             return false;
         }
 
-        /// <summary>
-        /// Відтворення музики (шаблон Template Method)
-        /// </summary>
         public virtual bool PlayMusic()
         {
             if (HeadphonesConnected)
             {
-                // Генеруємо подію зміни стану пристрою
                 OnDeviceStateChanged(new DeviceStateEventArgs("Музика грає у навушниках"));
-
                 SimulateProcessorLoad(LoadIntensity.Medium);
                 SimulateBatteryUsage(LoadIntensity.Medium);
                 return true;
@@ -268,16 +261,11 @@ namespace DeviceSimulation.Devices
             return false;
         }
 
-        /// <summary>
-        /// Перегляд відео (шаблон Template Method)
-        /// </summary>
         public virtual bool WatchVideo()
         {
             if (CanPerformAction(true, new[] { "Ютуб" }, null))
             {
-                // Генеруємо подію зміни стану пристрою
                 OnDeviceStateChanged(new DeviceStateEventArgs("Відео запущено"));
-
                 SimulateProcessorLoad(LoadIntensity.Low);
                 SimulateBatteryUsage(LoadIntensity.High);
                 return true;
@@ -286,40 +274,41 @@ namespace DeviceSimulation.Devices
             return false;
         }
 
-        /// <summary>
-        /// Метод шаблону Strategy для відображення специфічних опцій пристрою
-        /// </summary>
         public abstract void DisplaySpecificOptions();
 
-        /// <summary>
-        /// Метод шаблону Strategy для обробки специфічних опцій пристрою
-        /// </summary>
         public abstract bool HandleSpecificOption(char choice);
 
-        // Методи для генерації подій (шаблон Observer)
-
-        /// <summary>
-        /// Метод для виклику події низького заряду батареї
-        /// </summary>
         protected virtual void OnBatteryLow(BatteryLevelEventArgs e)
         {
             BatteryLowEvent?.Invoke(this, e);
+
+            // Notify all battery level observers
+            foreach (var observer in _batteryLevelObservers)
+            {
+                observer.OnNext(e);
+            }
         }
 
-        /// <summary>
-        /// Метод для виклику події зміни стану мережі
-        /// </summary>
         protected virtual void OnNetworkStateChanged(NetworkStateEventArgs e)
         {
             NetworkStateChangedEvent?.Invoke(this, e);
+
+            // Notify all network state observers
+            foreach (var observer in _networkStateObservers)
+            {
+                observer.OnNext(e);
+            }
         }
 
-        /// <summary>
-        /// Метод для виклику події зміни стану пристрою
-        /// </summary>
         protected virtual void OnDeviceStateChanged(DeviceStateEventArgs e)
         {
             DeviceStateChangedEvent?.Invoke(this, e);
+
+            // Notify all device state observers
+            foreach (var observer in _deviceStateObservers)
+            {
+                observer.OnNext(e);
+            }
         }
     }
 }

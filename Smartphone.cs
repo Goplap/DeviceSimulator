@@ -1,19 +1,18 @@
-﻿// Devices/Smartphone.cs - Конкретна реалізація смартфона
-using System;
+﻿using System;
+using System.Collections.Generic;
 using DeviceSimulation.Components;
 using DeviceSimulation.EventArgs;
 
 namespace DeviceSimulation.Devices
 {
-    /// <summary>
-    /// Клас Smartphone представляє смартфон
-    /// Реалізує конкретну стратегію для пристрою типу "Смартфон" (шаблон Strategy)
-    /// </summary>
     public class Smartphone : BaseDevice
     {
         public double ScreenSize { get; }
         public string CameraMP { get; }
         public bool IsBiometricEnabled { get; private set; }
+        public bool IsBluetoothConnected { get; private set; }
+
+        private readonly List<IObserver> observers = new();
 
         public Smartphone()
             : base(DeviceType.Smartphone, 3000,
@@ -24,8 +23,8 @@ namespace DeviceSimulation.Devices
             CameraMP = "48 MP";
             IsBiometricEnabled = true;
             HasPowerSupport = false;
+            IsBluetoothConnected = true;
 
-            // Встановлення основного ПЗ
             InstallSoftware("Операційна система");
             InstallSoftware("Браузер");
             InstallSoftware("Месенджер");
@@ -33,9 +32,43 @@ namespace DeviceSimulation.Devices
             InstallSoftware("Камера");
         }
 
-        /// <summary>
-        /// Реалізація специфічних опцій для смартфона (шаблон Strategy)
-        /// </summary>
+        public void Attach(IObserver observer)
+        {
+            if (!observers.Contains(observer))
+            {
+                observers.Add(observer);
+            }
+        }
+
+        public void Detach(IObserver observer)
+        {
+            observers.Remove(observer);
+        }
+
+        private void NotifyObservers(string message)
+        {
+            foreach (var observer in observers)
+            {
+                observer.Update(message);
+            }
+        }
+
+        // Implementing the required abstract methods
+        protected override void DisplayProcessorInfo()
+        {
+            Console.WriteLine($"Процесор: {DeviceProcessor.Model}, {DeviceProcessor.Cores} ядер, {DeviceProcessor.ClockSpeedGHz} ГГц");
+        }
+
+        protected override void DisplayMemoryInfo()
+        {
+            Console.WriteLine($"Оперативна пам'ять: {DeviceMemory.Type}, {DeviceMemory.CapacityGB} ГБ");
+        }
+
+        protected override void DisplayInstalledSoftware()
+        {
+            Console.WriteLine("Встановлене ПЗ: " + (InstalledSoftware.Any() ? string.Join(", ", InstalledSoftware) : "Немає"));
+        }
+
         public override void DisplaySpecificOptions()
         {
             Console.WriteLine("T. Увімкнути/вимкнути біометричну автентифікацію");
@@ -43,9 +76,6 @@ namespace DeviceSimulation.Devices
             Console.WriteLine("M. Увімкнути мобільні дані");
         }
 
-        /// <summary>
-        /// Обробка специфічних опцій для смартфона (шаблон Strategy)
-        /// </summary>
         public override bool HandleSpecificOption(char choice)
         {
             switch (choice)
@@ -67,35 +97,23 @@ namespace DeviceSimulation.Devices
             }
         }
 
-        /// <summary>
-        /// Увімкнення/вимкнення біометричної автентифікації
-        /// </summary>
-        private void ToggleBiometricAuthentication()
+        public void ToggleBiometricAuthentication()
         {
             IsBiometricEnabled = !IsBiometricEnabled;
-
-            // Генеруємо подію зміни стану пристрою
-            OnDeviceStateChanged(new DeviceStateEventArgs(
-                $"Біометричну автентифікацію {(IsBiometricEnabled ? "увімкнено" : "вимкнено")}"));
-
-            Console.WriteLine(IsBiometricEnabled ?
-                "Біометричну автентифікацію увімкнено. Підвищений рівень безпеки." :
-                "Біометричну автентифікацію вимкнено. Використовується PIN-код.");
+            string message = $"Біометричну автентифікацію {(IsBiometricEnabled ? "увімкнено" : "вимкнено")}";
+            NotifyObservers(message);
+            Console.WriteLine(message);
         }
 
-        /// <summary>
-        /// Фотографування на камеру смартфона
-        /// </summary>
-        private void TakePhoto()
+        public void TakePhoto()
         {
             if (CanPerformAction(false, new[] { "Камера" }, null))
             {
-                // Генеруємо подію зміни стану пристрою
-                OnDeviceStateChanged(new DeviceStateEventArgs("Фото зроблено"));
-
                 SimulateProcessorLoad(LoadIntensity.Medium);
                 SimulateBatteryUsage(LoadIntensity.Low);
-                Console.WriteLine($"Фото зроблено з роздільною здатністю {CameraMP}.");
+                string message = $"Фото зроблено з роздільною здатністю {CameraMP}.";
+                NotifyObservers(message);
+                Console.WriteLine(message);
             }
             else
             {
@@ -103,27 +121,41 @@ namespace DeviceSimulation.Devices
             }
         }
 
-        /// <summary>
-        /// Увімкнення/вимкнення мобільних даних
-        /// </summary>
-        private void ToggleMobileData()
+        public void ToggleMobileData()
         {
             NetworkConnected = !NetworkConnected;
-
             SimulateBatteryUsage(LoadIntensity.Low);
-            Console.WriteLine(NetworkConnected ?
+            string message = NetworkConnected ?
                 "Мобільні дані увімкнено. Доступ до інтернету через мобільну мережу." :
-                "Мобільні дані вимкнено.");
+                "Мобільні дані вимкнено.";
+            NotifyObservers(message);
+            Console.WriteLine(message);
         }
 
-        /// <summary>
-        /// Відображення специфічної інформації про смартфон (шаблон Template Method)
-        /// </summary>
+        public override void ToggleHeadphonesConnection()
+        {
+            HeadphonesConnected = !HeadphonesConnected;
+            string message = $"Гарнітура {(HeadphonesConnected ? "підключена" : "відключена")}";
+            NotifyObservers(message);
+            // Also notify through the BaseDevice's event system
+            OnDeviceStateChanged(new DeviceStateEventArgs(message));
+        }
+
         protected override void DisplaySpecificInfo()
         {
             Console.WriteLine($"Розмір екрану: {ScreenSize} дюймів");
             Console.WriteLine($"Камера: {CameraMP}");
             Console.WriteLine($"Біометрична автентифікація: {(IsBiometricEnabled ? "Увімкнена" : "Вимкнена")}");
         }
+
+        protected override void DisplayPeripheralConnections()
+        {
+            Console.WriteLine($"Bluetooth: {(IsBluetoothConnected ? "Підключений" : "Не підключений")}");
+        }
+    }
+
+    public interface IObserver
+    {
+        void Update(string message);
     }
 }

@@ -10,8 +10,8 @@ namespace lab1
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            // Використання шаблону Фасад (Facade) - DeviceSimulator надає простий інтерфейс 
-            // для взаємодії зі складною підсистемою симуляції пристроїв
+            IDeviceFactory factory = new DeviceFactory();
+
             var simulator = new DeviceSimulator();
             simulator.Run();
         }

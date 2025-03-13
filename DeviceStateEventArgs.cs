@@ -3,9 +3,6 @@ using System;
 
 namespace DeviceSimulation.EventArgs
 {
-    /// <summary>
-    /// Клас аргументів події зміни стану пристрою (шаблон Observer)
-    /// </summary>
     public class DeviceStateEventArgs : System.EventArgs
     {
         public string Message { get; }
