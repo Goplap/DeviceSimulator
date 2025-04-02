@@ -4,6 +4,7 @@ using DeviceSimulation.EventArgs;
 using DeviceSimulation;
 using DeviceSimulation.Devices;
 using lab_3.Strategy;
+using DeviceSimulation.Patterns;
 
 public class DeviceSimulator :
     IObserver<DeviceStateEventArgs>,
@@ -14,7 +15,7 @@ public class DeviceSimulator :
     private readonly IDeviceFactory _laptopFactory;
     private readonly IDeviceFactory _smartphoneFactory;
     private IDevice? _currentDevice;
-    private IDeviceStrategy? _deviceStrategy;
+    private DeviceContext? _deviceContext;  // Додаємо DeviceContext
     private List<IDisposable> _subscriptions = new();
 
     public DeviceSimulator()
@@ -46,18 +47,15 @@ public class DeviceSimulator :
         Console.WriteLine("3. Смартфон");
         Console.WriteLine("0. Вихід");
 
-        // Only display device-specific options if a device is selected
-        if (_currentDevice != null)
-        {
-            _currentDevice.DisplaySpecificOptions();
-        }
+        // Відображаємо специфічні опції пристрою через DeviceContext
+        _deviceContext?.DisplaySpecificOptions();
 
         Console.Write("Ваш вибір: ");
     }
 
     private bool HandleMainMenuChoice(char choice)
     {
-        // Dispose existing subscriptions when selecting a new device
+        // Очистка підписок перед вибором нового пристрою
         _subscriptions.ForEach(s => s.Dispose());
         _subscriptions.Clear();
 
@@ -71,7 +69,7 @@ public class DeviceSimulator :
                 break;
             case '3':
                 _currentDevice = _smartphoneFactory.CreateDevice(DeviceType.Smartphone);
-                _deviceStrategy = new SmartphoneStrategy((Smartphone)_currentDevice);
+                _deviceContext = new DeviceContext(new SmartphoneStrategy((Smartphone)_currentDevice));
                 break;
             case '0':
                 Console.WriteLine("Вихід із програми...");
@@ -94,7 +92,6 @@ public class DeviceSimulator :
     {
         if (_currentDevice == null) return;
 
-        // Subscribe to different event types correctly
         var device = _currentDevice as BaseDevice;
         if (device != null)
         {
@@ -104,11 +101,17 @@ public class DeviceSimulator :
         }
     }
 
-    // Observer pattern implementations for different event types
     public void OnNext(BatteryLevelEventArgs value)
     {
         Console.WriteLine($"⚠️ ПОПЕРЕДЖЕННЯ: Рівень заряду {value.BatteryLevel}%! Підключіть зарядний пристрій.");
     }
+
+    public void OnNext(BatteryInfo value)
+    {
+        string chargingStatus = value.IsCharging ? "🔌 Заряджається" : "⚡ Розряджається";
+        Console.WriteLine($"⚠️ ПОПЕРЕДЖЕННЯ: Рівень заряду {value.Level}% | {chargingStatus}");
+    }
+
 
     public void OnNext(NetworkStateEventArgs value)
     {
@@ -164,8 +167,8 @@ public class DeviceSimulator :
         Console.WriteLine("8. Підключити гарнітуру");
         Console.WriteLine("9. Переглянути характеристики пристрою");
 
-        // Display device-specific options
-        _currentDevice.DisplaySpecificOptions();
+        // Використовуємо DeviceContext для специфічних опцій пристрою
+        _deviceContext?.DisplaySpecificOptions();
 
         Console.WriteLine("0. Повернутися");
         Console.Write("Ваш вибір: ");
@@ -175,8 +178,8 @@ public class DeviceSimulator :
     {
         if (_currentDevice == null) return false;
 
-        // First check if it's a device-specific option
-        if (_currentDevice.HandleSpecificOption(choice))
+        // Спочатку перевіряємо, чи це специфічна опція пристрою через DeviceContext
+        if (_deviceContext != null && _deviceContext.HandleSpecificOption(choice))
         {
             return true;
         }

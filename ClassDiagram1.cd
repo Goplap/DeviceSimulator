@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ComputerFactory" BaseTypeListCollapsed="true">
+    <Position X="12.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Factory\ComputerFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceFactory" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Factory\DeviceFactory.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="LaptopFactory" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Factory\LaptopFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartphoneFactory" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Factory\SmartphoneFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceContext">
+    <Position X="7.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAACAAAAAEAAAAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>Strategy\DeviceContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartphoneStrategy" BaseTypeListCollapsed="true">
+    <Position X="11" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>Strategy\SmartphoneStrategy.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DeviceSimulator" BaseTypeListCollapsed="true">
+    <Position X="11" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IEAAIgAAAACAAAIAAAAAAAAAAAAIAAIIhgBAAARAAAI=</HashCode>
+      <FileName>DeviceSimulator.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DeviceSimulation.Patterns.BatteryNotifier" BaseTypeListCollapsed="true">
+    <Position X="16.25" Y="3" Width="1.5" />
+    <NestedTypes>
+      <Class Name="DeviceSimulation.Patterns.BatteryNotifier.Unsubscriber" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Observe\IObservableDevice.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAQAAAE=</HashCode>
+      <FileName>Observe\IObservableDevice.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DeviceSimulation.Patterns.BatteryStatusDisplay" BaseTypeListCollapsed="true">
+    <Position X="11" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAACAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Observe\IObservableDevice.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="DeviceSimulation.Devices.BaseDevice">
+    <Position X="2.75" Y="0.75" Width="1.5" />
+    <NestedTypes>
+      <Class Name="DeviceSimulation.Devices.BaseDevice.Unsubscriber&lt;T&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>BaseDevice.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>BAQABQFQhAACAgABAJIAAAFBAAADAMKAUYBAASRIUDg=</HashCode>
+      <FileName>BaseDevice.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="DeviceSimulation.Devices.Computer">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAEAAABQAgABAAAAAAAAAAQIAAAAAABAAQRIADA=</HashCode>
+      <FileName>Computer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceSimulation.Devices.Laptop">
+    <Position X="5.25" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACABEAAAgAAgAAAAAAAAAAAAAAAAAgAABAAQVABDA=</HashCode>
+      <FileName>Laptop.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceSimulation.Devices.Smartphone">
+    <Position X="5.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAEAAAAAAgIBAAIAAAAAIIAAAAAAAABAAQxwATg=</HashCode>
+      <FileName>Smartphone.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceSimulation.EventArgs.BatteryLevelEventArgs">
+    <Position X="7.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>BatteryLevelEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceSimulation.EventArgs.DeviceStateEventArgs">
+    <Position X="14.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>DeviceStateEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceSimulation.EventArgs.NetworkStateEventArgs">
+    <Position X="14.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>NetworkStateEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceSimulation.Components.Memory">
+    <Position X="9.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAgAAAAA=</HashCode>
+      <FileName>Memory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DeviceSimulation.Components.Processor">
+    <Position X="14.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAEAAAAAACAAAAgAAAAAAAA=</HashCode>
+      <FileName>Processor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="lab1.Program">
+    <Position X="7.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="IDeviceFactory">
+    <Position X="9.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Factory\IDeviceFactory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DeviceSimulation.Patterns.IObservableDevice">
+    <Position X="12.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Observe\IObservableDevice.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="lab_3.Strategy.IDeviceStrategy">
+    <Position X="11" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>Strategy\IDeviceStrategy.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DeviceSimulation.Devices.IObserver">
+    <Position X="7.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Smartphone.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DeviceSimulation.IDevice">
+    <Position X="11" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQABABQBAAAAgAAAJAAAAFBAAACAEKAUYBAACAIQBg=</HashCode>
+      <FileName>IDevice.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="DeviceSimulation.DeviceType">
+    <Position X="7.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAQAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>DeviceType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="DeviceSimulation.LoadIntensity">
+    <Position X="9.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgAAAAAAAAgAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>LoadIntensity.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

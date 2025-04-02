@@ -1,7 +1,7 @@
 ﻿using DeviceSimulation.Devices;
 using DeviceSimulation;
 
-public class LaptopFactory : IDeviceFactory
+public class LaptopFactory : DeviceFactory
 {
     public IDevice CreateDevice(DeviceType type)
     {
